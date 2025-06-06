@@ -24,12 +24,37 @@ services:
 
   # Django Web Service
   web:
-    build: .
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=your-insecure-development-secret-key
+      - POSTGRES_NAME=frisque_db
+      - POSTGRES_USER=frisque_user
+      - POSTGRES_PASSWORD=frisque_pass
+      - POSTGRES_HOST=db
+      - CELERY_BROKER_URL=amqp://guest:guest@broker:5672//
+    depends_on:
+      - db
+      - broker
+
+# Celery Worker Service
+  celery_worker:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    command: celery -A frisque_core worker -l info
+    volumes:
+      - .:/app
     environment:
       - DJANGO_SECRET_KEY=your-insecure-development-secret-key
       - POSTGRES_NAME=frisque_db
