@@ -1,0 +1,45 @@
+# docker-compose.yml
+
+version: '3.9'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=frisque_db
+      - POSTGRES_USER=frisque_user
+      - POSTGRES_PASSWORD=frisque_pass
+    ports:
+      - "5432:5432"
+
+  # RabbitMQ Message Broker Service
+  broker:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"   # For Celery
+      - "15672:15672" # For RabbitMQ Management UI
+
+  # Django Web Service
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=your-insecure-development-secret-key
+      - POSTGRES_NAME=frisque_db
+      - POSTGRES_USER=frisque_user
+      - POSTGRES_PASSWORD=frisque_pass
+      - POSTGRES_HOST=db
+      - CELERY_BROKER_URL=amqp://guest:guest@broker:5672//
+    depends_on:
+      - db
+      - broker
+
+volumes:
+  postgres_data:
