@@ -2,7 +2,7 @@
 
 **Welcome to contributors!**
 
-We appreciate your interest in contributing to the this project. This document outlines the guidelines for contributing to this project.
+We appreciate your interest in contributing to this project. This document outlines the guidelines for contributing to this project.
 
 **Getting started:**
 
