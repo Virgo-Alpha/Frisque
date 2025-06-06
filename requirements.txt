@@ -1,0 +1,6 @@
+# requirements.txt
+django
+psycopg2-binary
+celery
+rabbitmq
+python-dotenv
