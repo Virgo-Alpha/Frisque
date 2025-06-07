@@ -38,8 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Local apps
-    'frisque_core',
-    'ai_agents',
 ]
 
 MIDDLEWARE = [

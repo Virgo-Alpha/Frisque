@@ -4,3 +4,4 @@ psycopg2-binary
 celery
 rabbitmq
 python-dotenv
+opentelemetry-api==1.20.0
