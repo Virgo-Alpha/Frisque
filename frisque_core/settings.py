@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-$qwd002fq&p&4nmdds8hi(e(z0lbkw*=a65r#)8!^%$4*vv!wk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Local apps
     'frisque_core',
     'ai_agents',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,5 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
+AUTH_USER_MODEL = 'users.User'

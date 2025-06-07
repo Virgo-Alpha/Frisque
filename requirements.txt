@@ -4,3 +4,6 @@ psycopg2-binary
 celery
 rabbitmq
 python-dotenv
+pytest
+pytest-django
+pytest-cov
