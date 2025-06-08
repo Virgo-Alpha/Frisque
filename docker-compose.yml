@@ -41,6 +41,7 @@ services:
       - POSTGRES_PASSWORD=frisque_pass
       - POSTGRES_HOST=db
       - CELERY_BROKER_URL=amqp://guest:guest@broker:5672//
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
     depends_on:
       - db
       - broker

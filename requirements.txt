@@ -5,3 +5,5 @@ celery
 rabbitmq
 python-dotenv
 opentelemetry-api==1.20.0
+tavily-python
+python-dotenv

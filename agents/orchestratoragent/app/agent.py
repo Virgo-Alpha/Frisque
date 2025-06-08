@@ -1,66 +1,91 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import datetime
 import os
-from zoneinfo import ZoneInfo
+import re
+import uuid
+import json
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import google.auth
 from google.adk.agents import Agent
+from tavily import TavilyClient # <-- Import TavilyClient here as well
 
+# --- GCP Configuration ---
 _, project_id = google.auth.default()
 os.environ.setdefault("GOOGLE_CLOUD_PROJECT", project_id)
-os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
+os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "us-central1")
 os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "True")
 
 
-def get_weather(query: str) -> str:
-    """Simulates a web search. Use it get information on weather.
+# --- Tool Definitions ---
 
-    Args:
-        query: A string containing the location to get weather information for.
-
-    Returns:
-        A string with the simulated weather information for the queried location.
+# This tool calls the remote WebSearchAgent
+def company_researcher(query: str) -> str:
     """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 60 degrees and foggy."
-    return "It's 90 degrees and sunny."
-
-
-def get_current_time(query: str) -> str:
-    """Simulates getting the current time for a city.
-
-    Args:
-        city: The name of the city to get the current time for.
-
-    Returns:
-        A string with the current time information.
+    Use this tool FIRST to get a general overview and raw text about a company.
+    This should be your first step.
     """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        tz_identifier = "America/Los_Angeles"
-    else:
-        return f"Sorry, I don't have timezone information for query: {query}."
+    # ... (The code for this function remains exactly the same as the last version)
+    print(f"-> Delegating general research for '{query}' to the WebSearchAgent...")
+    user_id = "orchestrator-user"
+    session_id = str(uuid.uuid4())
+    base_url = os.environ.get("WEB_SEARCH_AGENT_URL", "http://localhost:8501")
+    session_url = f"{base_url}/apps/app/users/{user_id}/sessions/{session_id}"
+    run_url = f"{base_url}/run_sse"
+    try:
+        requests.post(session_url, json={}).raise_for_status()
+        payload = {
+            "app_name": "app", "user_id": user_id, "session_id": session_id,
+            "new_message": {"parts": [{"text": query}]}
+        }
+        run_response = requests.post(run_url, json=payload, stream=True)
+        run_response.raise_for_status()
+        final_text_response = "No valid response found."
+        for line in run_response.iter_lines():
+            if line and line.decode('utf-8').startswith("data: "):
+                # ... (parsing logic remains the same)
+                data = json.loads(line.decode('utf-8')[6:])
+                if "content" in data and "parts" in data["content"] and data["content"]["parts"]:
+                    final_text_response = data["content"]["parts"][0].get("text", final_text_response)
+        return final_text_response
+    except requests.exceptions.RequestException as e:
+        return f"An error occurred while calling the WebSearchAgent: {e}"
 
-    tz = ZoneInfo(tz_identifier)
-    now = datetime.datetime.now(tz)
-    return f"The current time for query {query} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
+# This is a NEW, local web_search tool for the Orchestrator
+tavily_client = TavilyClient(api_key=os.environ.get("TAVILY_API_KEY"))
+def web_search(query: str) -> str:
+    """
+    Use this tool for targeted follow-up searches to find specific, missing pieces of information like employee size, founders, etc.
+    """
+    print(f"-> [Orchestrator] Performing targeted search for: '{query}'")
+    try:
+        response = tavily_client.search(query=query, search_depth="basic", max_results=3)
+        return "\n".join([res["content"] for res in response["results"]])
+    except Exception as e:
+        return f"An error occurred during the web search: {e}"
 
+# ? The master orchestrator agent is now small thus it makes iterative calls.
+# TODO: We need to limit by time / results to avoid infinite loops or excessive API calls.
+# TODO: Specify the fields, maybe
+# TODO: Add another agent to test for this.
 
-root_agent = Agent(
-    name="root_agent",
-    model="gemini-2.0-flash",
-    instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
-    tools=[get_weather, get_current_time],
+# --- Orchestrator Agent Definition ---
+OrchestratorAgent = Agent(
+    name="OrchestratorAgent",
+    model="gemini-2.0-flash-001",
+    # The instruction is updated to explain the two-tool workflow.
+    instruction="""
+    You are a master data analyst. Your goal is to create a detailed JSON object about a company.
+    You have a two-step process and two tools available:
+
+    1.  **Initial Research:** First, you MUST call the `company_researcher` tool with the company's name. This will give you a general block of text.
+    2.  **Analysis and Follow-up:** Analyze the text from the first step. Then, create the final JSON object. If any information (like 'employee_size' or 'founders') is missing from the text, you MUST use the `web_search` tool to perform targeted follow-up searches to find it. Example: `web_search(query='Figma employee count')`.
+
+    Your final answer must be a single JSON object with all fields correctly filled.
+    """,
+    # The Orchestrator now has two tools at its disposal.
+    tools=[company_researcher, web_search],
 )
+
+root_agent = OrchestratorAgent
