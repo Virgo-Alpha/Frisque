@@ -1,3 +1,5 @@
+-include .env
+
 install:
 	@command -v uv >/dev/null 2>&1 || { echo "uv is not installed. Installing uv..."; curl -LsSf https://astral.sh/uv/0.6.12/install.sh | sh; source ~/.bashrc; }
 	uv sync --dev --extra jupyter --frozen
@@ -25,7 +27,7 @@ backend:
 		--no-allow-unauthenticated \
 		--labels "created-by=adk" \
 		--set-env-vars \
-		"COMMIT_SHA=$(shell git rev-parse HEAD)"
+		"COMMIT_SHA=$(shell git rev-parse HEAD),TAVILY_API_KEY=$(TAVILY_API_KEY)"
 
 local-backend:
 	uv run uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload
