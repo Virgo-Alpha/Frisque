@@ -106,6 +106,25 @@ Here are some examples of common `manage.py` commands.
     docker-compose exec web bash
     ```
 
+## Testing the Application
+
+  * **Runtests while inside the application Inside the Container**
+    While inside the web container,you can run the command `pytest`
+
+  * **Runtests script**
+    While outside the web container, you can run the command:
+    
+    ```bash
+    ./run_tests.sh
+    ```
+
+  You can also run the full command below:
+  
+    ```bash
+    docker-compose exec web pytest
+    ```
+
+
 ### Stopping the Environment
 
 To stop all running services, press `Ctrl+C` in the terminal where `docker-compose up` is running.
