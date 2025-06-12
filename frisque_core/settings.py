@@ -58,7 +58,7 @@ ROOT_URLCONF = 'frisque_core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],  # Added templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,7 +118,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -128,10 +130,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # --- Celery Configuration ---
 # We configured RabbitMQ in docker-compose.yml
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "amqp://guest:guest@localhost:5672//")
-CELERY_RESULT_BACKEND = "rpc://" # Using RPC backend is fine for now, can be changed later
+CELERY_RESULT_BACKEND = "rpc://"  # Using RPC backend is fine for now, can be changed later
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 AUTH_USER_MODEL = 'users.User'
+
+LOGIN_REDIRECT_URL = "users"
+LOGOUT_REDIRECT_URL = "home"
