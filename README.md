@@ -71,6 +71,10 @@ You must have **Docker** and **Docker Compose** installed on your system.
 
     You should see the default Django "Congratulations\!" page. This confirms that the entire stack is working correctly\!
 
+## Agents Configuration
+
+For agents instructions, please check out the file agents/instructions.md
+
 -----
 
 ## Development Workflow

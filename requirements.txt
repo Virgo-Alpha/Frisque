@@ -3,6 +3,8 @@ django
 psycopg2-binary
 celery
 rabbitmq
+opentelemetry-api==1.20.0
+tavily-python
 python-dotenv
 pytest
 pytest-django
