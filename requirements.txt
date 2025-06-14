@@ -7,3 +7,7 @@ python-dotenv
 pytest
 pytest-django
 pytest-cov
+django-allauth
+requests
+jwt
+django-allauth
