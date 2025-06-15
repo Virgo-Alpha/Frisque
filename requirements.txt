@@ -9,3 +9,5 @@ python-dotenv
 pytest
 pytest-django
 pytest-cov
+requests
+google-generativeai

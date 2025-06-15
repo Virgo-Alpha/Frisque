@@ -30,7 +30,7 @@ def company_researcher(query: str) -> str:
     print(f"-> Delegating general research for '{query}' to the WebSearchAgent...")
     user_id = "orchestrator-user"
     session_id = str(uuid.uuid4())
-    base_url = os.environ.get("WEB_SEARCH_AGENT_URL", "http://localhost:8501")
+    base_url = os.environ.get("WEB_SEARCH_AGENT_URL", "http://host.docker.internal:8501")
     session_url = f"{base_url}/apps/app/users/{user_id}/sessions/{session_id}"
     run_url = f"{base_url}/run_sse"
     try:
@@ -60,7 +60,7 @@ def web_search(query: str) -> str:
     """
     print(f"-> [Orchestrator] Performing targeted search for: '{query}'")
     try:
-        response = tavily_client.search(query=query, search_depth="basic", max_results=3)
+        response = tavily_client.search(query=query, search_depth="basic", max_results=5)
         return "\n".join([res["content"] for res in response["results"]])
     except Exception as e:
         return f"An error occurred during the web search: {e}"
@@ -76,13 +76,19 @@ OrchestratorAgent = Agent(
     model="gemini-2.0-flash-001",
     # The instruction is updated to explain the two-tool workflow.
     instruction="""
-    You are a master data analyst. Your goal is to create a detailed JSON object about a company.
+    You are a master data analyst. Your goal is to create a detailed JSON object about a company based on the user's prompt.
+    The user's prompt is the company's name.
+    Immediately use your tools with the user's prompt as the `query`.
+    Return the raw output from the tools directly. Do not add any extra text.
+    
     You have a two-step process and two tools available:
 
     1.  **Initial Research:** First, you MUST call the `company_researcher` tool with the company's name. This will give you a general block of text.
-    2.  **Analysis and Follow-up:** Analyze the text from the first step. Then, create the final JSON object. If any information (like 'employee_size' or 'founders') is missing from the text, you MUST use the `web_search` tool to perform targeted follow-up searches to find it. Example: `web_search(query='Figma employee count')`.
+    2.  **Analysis and Follow-up:** Analyze the text from the first step. Then, create the final JSON object. If any information (like 'employee_size' or 'founders') is missing from the text, you MUST use the `web_search` tool to perform targeted follow-up searches to find it.
 
     Your final answer must be a single JSON object with all fields correctly filled.
+    The required keys are: input_name, official_name, description, industry, founders, ceo, products, geographical_location, employee_size.
+    For any field you cannot find, use the string 'Not Found'.
     """,
     # The Orchestrator now has two tools at its disposal.
     tools=[company_researcher, web_search],

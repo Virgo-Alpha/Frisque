@@ -17,7 +17,7 @@ playground:
 	@echo "|                                                                             |"
 	@echo "| 🔍 IMPORTANT: Select the 'app' folder to interact with your agent.          |"
 	@echo "==============================================================================="
-	uv run adk web --port 8502
+	uv run adk web --host 0.0.0.0 --port 8502
 
 backend:
 	PROJECT_ID=$$(gcloud config get-value project) && \

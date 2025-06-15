@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Local apps
     'frisque_core',
-    'ai_agents',
     'users',
     'scans'
 ]
