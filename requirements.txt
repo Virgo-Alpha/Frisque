@@ -9,3 +9,8 @@ python-dotenv
 pytest
 pytest-django
 pytest-cov
+django-allauth
+requests
+PyJWT==2.8.0 
+cryptography
+django-widget-tweaks

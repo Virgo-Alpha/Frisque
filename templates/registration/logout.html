@@ -1,0 +1,53 @@
+{# REMOVED: {% extends "base.html" %} #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logged Out</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    // Tailwind CSS configuration for custom colors and fonts
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'brand-blue-dark': '#2B3C52',
+                    'brand-blue-light': '#4A698F',
+                    'gray-custom-100': '#F9FAFB',
+                    'gray-custom-800': '#2D3748',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    poppins: ['Poppins', 'sans-serif'],
+                },
+            },
+        },
+    }
+  </script>
+
+  <style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+    }
+  </style>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-custom-100 text-gray-custom-800 flex items-center justify-center min-h-screen">
+
+    <div class="max-w-md w-full p-8 bg-white rounded-lg shadow-2xl border border-gray-200 text-center">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-dark-text">You have been logged out.</h2>
+        <p class="text-gray-600 mb-6">Thank you for using Frisque.</p>
+        <a href="{% url 'login' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-blue-dark hover:bg-brand-blue-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue-dark transition-colors duration-200">
+            Log in again
+        </a>
+    </div>
+</body>
+</html>
