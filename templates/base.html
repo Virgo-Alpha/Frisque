@@ -1,4 +1,5 @@
 {% load static %}
+{% load account %}
 {% load socialaccount %} {# Required for provider_login_url tag #}
 
 <!DOCTYPE html>
@@ -134,18 +135,9 @@
             <span class="text-sm font-medium text-gray-custom-800">Hi, {% if user.first_name %}{{ user.first_name }}{% elif user.email %}{{ user.email }}{% else %}User{% endif %}</span>
             <a href="{% url 'account_logout' %}" class="bg-brand-blue-dark hover:bg-brand-blue-light text-white px-4 py-2 rounded text-sm transition-colors duration-200">Logout</a>
           {% else %}
-            <a href="{% url 'account_login' %}" class="text-brand-blue-dark hover:underline mr-4">Login</a>
-            <a href="{% url 'account_signup' %}" class="bg-brand-blue-dark hover:bg-brand-blue-light text-white px-4 py-2 rounded text-sm transition-colors duration-200">Sign Up</a>
-            <!-- Allauth Google Login Button -->
-            <a href="{% provider_login_url 'google' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center space-x-2 transition-colors duration-200">
-                <svg class="w-4 h-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M44.5 24C44.5 22.45 44.375 20.89 44.125 19.34H24V28.91H35.81C35.21 32.13 33.32 34.82 30.64 36.65V42.06H37.89C42.15 38.25 44.5 32.54 44.5 24Z" fill="#FFFFFF"/>
-                    <path d="M24 44.5C29.6 44.5 34.34 42.6 37.89 39.06L30.64 33.65C28.53 35.15 26.04 36.07 24 36.07C18.66 36.07 14.15 32.48 12.56 27.56H5.06V32.97C8.61 40.59 15.65 44.5 24 44.5Z" fill="#FFFFFF"/>
-                    <path d="M12.56 27.56C12.18 26.47 11.96 25.29 11.96 24C11.96 22.71 12.18 21.53 12.56 20.44V15.03H5.06C3.5 17.51 2.5 20.65 2.5 24C2.5 27.35 3.5 30.49 5.06 32.97L12.56 27.56Z" fill="#FFFFFF"/>
-                    <path d="M24 11.96C26.86 11.96 29.47 13.06 31.42 14.86L38.07 8.21C34.34 4.54 29.6 2.5 24 2.5C15.65 2.5 8.61 6.41 5.06 14.03L12.56 19.44C14.15 14.52 18.66 10.93 24 10.93V11.96Z" fill="#FFFFFF"/>
-                </svg>
-                <span>Login with Google</span>
-            </a>
+            <a href="{% url 'login' %}" class="text-brand-blue-dark hover:underline mr-4">Login</a>
+            <a href="{% url 'signup' %}" class="bg-brand-blue-dark hover:bg-brand-blue-light text-white px-4 py-2 rounded text-sm transition-colors duration-200">Sign Up</a>
+            
           {% endif %}
         </div>
       </header>

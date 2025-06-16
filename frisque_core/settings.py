@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks', 
 
     # Required by allauth
     'django.contrib.sites',
@@ -78,7 +79,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 # allauth context processors (crucial for template rendering)
                 # 'allauth.account.context_processors.account',
-                # 'allauth.socialaccount.context_processors.socialaccount',
+                # 'allauth.socialaccount.context_processors.socialaccount'
             ],
         },
     },
@@ -154,14 +155,14 @@ CELERY_TIMEZONE = 'UTC'
 AUTH_USER_MODEL = 'users.User' # Ensure this is correct if you have a custom user model
 
 # --- Authentication & allauth settings ---
-SITE_ID = 1 # Required by django.contrib.sites and allauth
+SITE_ID = 2 # Required by django.contrib.sites and allauth
 
 # Redirect URLs after login/logout
 LOGIN_REDIRECT_URL = '/users/' # Redirect to /users/ after successful login
 LOGOUT_REDIRECT_URL = '/'      # Redirect to root (home) after logout
 
 # Django's built-in LOGIN_URL (used by LoginRequiredMixin)
-LOGIN_URL = '/accounts/login/' # Change to allauth's login URL
+LOGIN_URL = '/login/' # Change to allauth's login URL
 
 # allauth specific account settings
 ACCOUNT_LOGOUT_ON_GET = True # IMPORTANT: Allows simple link clicks to log out (convenience vs. strict security)
@@ -171,13 +172,18 @@ ACCOUNT_UNIQUE_EMAIL = True # Each email must be unique
 ACCOUNT_USERNAME_REQUIRED = False # Don't require a username
 ACCOUNT_EMAIL_VERIFICATION = 'none' # 'none', 'optional', 'mandatory' (Set to 'mandatory' for production)
 
+# Tell allauth to use its email-only signup adapter
+# This is crucial for fixing the 'username' field error
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter' # This is the default, but explicitly stating helps
+
 # allauth social account provider settings (for Google OAuth)
+SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_QUERY_EMAIL = True # Request email address from social account provider
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': os.environ.get('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID'), # Replace with your actual Client ID
-            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET'), # Replace with your actual Client Secret
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID', '46904927368-s6qm7k1c5ofg82fs4dljjb7guu8gimcs.apps.googleusercontent.com'), # Replace with your actual Client ID
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', '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'), # Replace with your actual Client Secret
             'key': '' # Not typically needed for Google
         },
         'SCOPE': [ # Requested permissions from Google
@@ -201,3 +207,6 @@ ACCOUNT_FORMS = {
     'login': 'allauth.account.forms.LoginForm',
     'signup': 'allauth.account.forms.SignupForm',
 }
+
+ACCOUNT_SIGNUP_TEMPLATE = 'users/signup.html'
+ACCOUNT_PASSWORD_RESET_TEMPLATE = 'account/password_reset.html' 

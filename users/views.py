@@ -5,6 +5,9 @@ from django.views.generic import TemplateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm # Assuming this form exists and is correctly defined
+from .forms import CustomAllauthSignupForm
+from allauth.account.views import SignupView as AllauthSignupView
+
 
 class CustomLoginView(LoginView):
     """
@@ -25,14 +28,15 @@ class CustomLogoutView(LogoutView):
     template_name = "registration/logout.html"
     next_page = reverse_lazy('home') # Redirects to the 'home' URL name after logout
 
-class SignUpView(CreateView):
+class SignUpView(AllauthSignupView):
     """
     View for user registration (Sign Up).
     Uses CustomUserCreationForm for handling form validation and user creation.
     Renders 'users/signup.html' template.
     On successful signup, redirects to the 'login' URL.
     """
-    form_class = CustomUserCreationForm
+    form_class = CustomAllauthSignupForm
+    # form_class = CustomUserCreationForm
     template_name = "users/signup.html"
     success_url = reverse_lazy("login")
 

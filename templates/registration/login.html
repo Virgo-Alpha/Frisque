@@ -1,19 +1,195 @@
-{% extends "base.html" %}
-{% block title %}Login{% endblock %}
+<!-- 
+{% load socialaccount %} {# Required for provider_login_url tag #}
+{% load widget_tweaks %} {# Load widget_tweaks tags #}
+
+{% block title %}Log in to Frisque{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-semibold mb-4">Log in to Frisque</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
-            Login
-        </button>
-    </form>
+<div class="flex items-center justify-center min-h-screen -mt-20"> {# Center content vertically and horizontally, adjust margin-top to offset fixed topbar #}
+    <div class="max-w-md w-full p-8 bg-white rounded-lg shadow-2xl border border-gray-200"> {# Stronger shadow, border for card effect #}
+        <h2 class="text-3xl font-poppins font-bold text-gray-dark-text mb-8 text-center">Log in to Frisque</h2>
 
-    <p class="mt-4 text-sm text-center">
-        Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a>
-    </p>
+        {# Messages from Django/allauth #}
+        {% if messages %}
+            <ul class="mb-6">
+                {% for message in messages %}
+                    <li class="p-3 rounded text-sm text-center {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ message }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {# Social Login Options #}
+        <div class="space-y-4 mb-6">
+            {% for provider in socialaccount_providers %}
+                {% if provider.id == 'google' %}
+                    <a href="{% provider_login_url provider.id %}" class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue-light transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48" fill="none" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+                            <path d="M44.5 24C44.5 22.45 44.375 20.89 44.125 19.34H24V28.91H35.81C35.21 32.13 33.32 34.82 30.64 36.65V42.06H37.89C42.15 38.25 44.5 32.54 44.5 24Z" fill="#4285F4"/>
+                            <path d="M24 44.5C29.6 44.5 34.34 42.6 37.89 39.06L30.64 33.65C28.53 35.15 26.04 36.07 24 36.07C18.66 36.07 14.15 32.48 12.56 27.56H5.06V32.97C8.61 40.59 15.65 44.5 24 44.5Z" fill="#34A853"/>
+                            <path d="M12.56 27.56C12.18 26.47 11.96 25.29 11.96 24C11.96 22.71 12.18 21.53 12.56 20.44V15.03H5.06C3.5 17.51 2.5 20.65 2.5 24C2.5 27.35 3.5 30.49 5.06 32.97L12.56 27.56Z" fill="#FBBC05"/>
+                            <path d="M24 11.96C26.86 11.96 29.47 13.06 31.42 14.86L38.07 8.21C34.34 4.54 29.6 2.5 24 2.5C15.65 2.5 8.61 6.41 5.06 14.03L12.56 19.44C14.15 14.52 18.66 10.93 24 10.93V11.96Z" fill="#EA4335"/>
+                        </svg>
+                        <span>Log in with {{ provider.name }}</span>
+                    </a>
+                {% endif %}
+            {% empty %}
+                <p class="text-center text-sm text-gray-500">No social providers configured. Please check Django Admin settings.</p>
+            {% endfor %}
+        </div>
+
+        {# OR Separator #}
+        <div class="relative flex py-5 items-center">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-400 font-medium text-sm">OR</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        {# Traditional Login Form #}
+        <form method="post" action="{% url 'account_login' %}" class="space-y-5">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                    {% render_field field class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-blue-light focus:border-brand-blue-light sm:text-sm" placeholder=field.label %}
+                    {% if field.help_text %}
+                        <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {# Add a link for forgot password #}
+            <div class="text-right text-sm">
+                <a href="{% url 'account_reset_password' %}" class="font-medium text-brand-blue-dark hover:text-brand-blue-light hover:underline">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="w-full bg-brand-blue-dark text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-brand-blue-light transition-colors duration-200 shadow-md">
+                Log in
+            </button>
+        </form>
+
+        <p class="mt-6 text-sm text-center text-gray-600">
+            Don't have an account? <a href="{% url 'account_signup' %}" class="text-brand-blue-dark hover:underline font-semibold">Sign up</a>
+        </p>
+    </div>
 </div>
-{% endblock %}
+{% endblock %} -->
+
+{% load socialaccount %} {# Required for provider_login_url tag #}
+{% load widget_tweaks %} {# Load widget_tweaks tags #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login to Frisque</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    // Tailwind CSS configuration for custom colors and fonts
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'brand-blue-dark': '#2B3C52',
+                    'brand-blue-light': '#4A698F',
+                    'gray-custom-100': '#F9FAFB',
+                    'gray-custom-800': '#2D3748',
+                    'red-alert': '#D32F2F',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    poppins: ['Poppins', 'sans-serif'],
+                },
+            },
+        },
+    }
+  </script>
+
+  <style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+    }
+  </style>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-custom-100 text-gray-custom-800 flex items-center justify-center min-h-screen">
+
+    <div class="max-w-md w-full p-8 bg-white rounded-lg shadow-2xl border border-gray-200">
+        <h2 class="text-3xl font-poppins font-bold text-gray-dark-text mb-8 text-center">Log in to Frisque</h2>
+
+        {# Messages from Django/allauth #}
+        {% if messages %}
+            <ul class="mb-6">
+                {% for message in messages %}
+                    <li class="p-3 rounded text-sm text-center {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ message }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {# Social Login Options #}
+        <div class="space-y-4 mb-6">
+            <!-- Allauth Google Login Button -->
+            <!-- <a href="{% provider_login_url 'google' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center space-x-2 transition-colors duration-200"> -->
+            <a href="{% provider_login_url 'google' %}" class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue-light transition-colors duration-200">
+                <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.25 3.55l6.09-5.93C35.91 3.57 30.2 1 24 1 14.28 1 5.62 6.55 1.56 15.01l7.63 5.92c1.7-5.04 6.36-8.52 14.81-8.52z"/>
+                    <path fill="#34A853" d="M46.7 24.5c0-1.57-.14-3.12-.41-4.63H24v9.26h12.55c-.56 3.01-2.2 5.56-4.71 7.23l6.23 4.84c3.6-3.32 5.75-8.22 5.75-13.7z"/>
+                    <path fill="#4285F4" d="M24 47.5c6.2 0 11.45-2.07 15.27-5.62l-6.23-4.84c-2.42 1.7-5.59 2.69-9.04 2.69-8.45 0-14.8-5.74-17.2-13.78L1.56 32.49c4.13 8.46 12.79 14.01 22.44 14.01z"/>
+                    <path fill="#FBBC05" d="M9.25 28.37c-.31-1.74-.49-3.56-.49-5.37 0-1.81.18-3.63.49-5.37l-7.63-5.92C1.04 18.06 1 21.01 1 23c0 1.99.04 4.14.46 6.5l7.79-6.5z"/>
+                </svg>
+                <span>Login with Google</span>
+            </a>
+        </div>
+
+        {# OR Separator #}
+        <div class="relative flex py-5 items-center">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-400 font-medium text-sm">OR</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        {# Traditional Login Form #}
+        <form method="post" action="{% url 'login' %}" class="space-y-5"> {# ACTION CHANGED TO YOUR CUSTOM LOGIN URL #}
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                    {% render_field field class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-blue-light focus:border-brand-blue-light sm:text-sm" placeholder=field.label %}
+                    {% if field.help_text %}
+                        <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {# Add a link for forgot password #}
+            <div class="text-right text-sm">
+                <a href="{% url 'account_reset_password' %}" class="font-medium text-brand-blue-dark hover:text-brand-blue-light hover:underline">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="w-full bg-brand-blue-dark text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-brand-blue-light transition-colors duration-200 shadow-md">
+                Log in
+            </button>
+        </form>
+
+        <p class="mt-6 text-sm text-center text-gray-600">
+            Don't have an account? <a href="{% url 'signup' %}" class="text-brand-blue-dark hover:underline font-semibold">Sign up</a> {# LINK CHANGED TO YOUR CUSTOM SIGNUP URL #}
+        </p>
+    </div>
+</body>
+</html>
