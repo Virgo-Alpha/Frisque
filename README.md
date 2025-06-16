@@ -71,6 +71,10 @@ You must have **Docker** and **Docker Compose** installed on your system.
 
     You should see the default Django "Congratulations\!" page. This confirms that the entire stack is working correctly\!
 
+## Agents Configuration
+
+For agents instructions, please check out the file agents/instructions.md
+
 -----
 
 ## Development Workflow
@@ -105,6 +109,25 @@ Here are some examples of common `manage.py` commands.
     ```bash
     docker-compose exec web bash
     ```
+
+## Testing the Application
+
+  * **Runtests while inside the application Inside the Container**
+    While inside the web container,you can run the command `pytest`
+
+  * **Runtests script**
+    While outside the web container, you can run the command:
+    
+    ```bash
+    ./run_tests.sh
+    ```
+
+  You can also run the full command below:
+  
+    ```bash
+    docker-compose exec web pytest
+    ```
+
 
 ### Stopping the Environment
 

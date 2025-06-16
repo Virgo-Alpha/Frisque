@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class AiAgentsConfig(AppConfig):
+class ScansConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'ai_agents'
+    name = 'scans'
