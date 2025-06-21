@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %} {# Make sure to load static for images/CSS #}
+
+{% block title %}Welcome to Frisque - AI Due Diligence{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4"> {# Increased max-width for dashboard content #}
+    {% if not user.is_authenticated %}
+    {# Original landing page content for unauthenticated users #}
+    <div class="text-center py-12">
+        <h1 class="text-5xl font-poppins font-bold text-gray-dark-text mb-4">Discover Smarter Due Diligence</h1>
+        <p class="text-xl text-gray-dark-text-alt mb-8 max-w-2xl mx-auto">Frisque helps VCs uncover risk layers like an onion 🧅. Track reports, collaborate with teams, and stay ahead of investment risks with AI-powered insights.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-poppins font-semibold text-gray-dark-text mb-3">🔍 AI-Powered Risk Detection</h2>
+                <p class="text-gray-dark-text-alt">Let Frisque analyze vast datasets and spot risks before they impact your investments.</p>
+            </div>
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-poppins font-semibold text-gray-dark-text mb-3">👥 Seamless Collaboration</h2>
+                <p class="text-gray-dark-text-alt">Share reports, comments, and real-time alerts effortlessly with your due diligence team.</p>
+            </div>
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-poppins font-semibold text-gray-dark-text mb-3">📊 Actionable Insights</h2>
+                <p class="text-gray-dark-text-alt">Visualize metrics and market signals on intuitive dashboards as they evolve.</p>
+            </div>
+        </div>
+
+        <a href="{% url 'account_signup' %}" class="bg-blue-accent text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-accent/90 transition-colors duration-300 text-xl">Get Started with Frisque →</a>
+    </div>
+
+    {% else %}
+    {# Dashboard content for authenticated users #}
+    <div class="bg-gray-light-bg p-8 overflow-auto rounded-lg shadow-inner"> {# Removed border, added shadow-inner for subtle depth #}
+        <header class="flex justify-between items-center pb-6 border-b border-gray-light-content mb-8">
+            <h2 class="text-4xl font-poppins font-bold text-gray-dark-text">Your Company Dashboard</h2>
+            <div class="relative">
+                <input type="text" placeholder="Search companies..." class="py-2 px-4 pl-10 rounded-lg border border-gray-light-content focus:outline-none focus:ring-2 focus:ring-blue-accent text-gray-dark-text bg-white">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+        </header>
+
+        <section>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-light-content">
+                    <h3 class="text-xl font-poppins font-semibold text-gray-dark-text mb-4">Company Summary</h3>
+                    <p class="text-gray-dark-text-alt text-sm leading-relaxed">
+                        **Innovatech Solutions:** A promising SaaS startup specializing in AI-driven data analytics for healthcare. Founded in 2021, currently in Seed stage. Strong leadership team with prior successful exits.
+                    </p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-light-content">
+                    <h3 class="text-xl font-poppins font-semibold text-gray-dark-text mb-4">Key Metrics</h3>
+                    <ul class="space-y-2 text-gray-dark-text-alt">
+                        <li><span class="text-blue-accent font-semibold">MRR:</span> $150k <span class="text-green-success text-sm">(+15% QoQ)</span></li>
+                        <li><span class="text-blue-accent font-semibold">User Growth:</span> 5,000 active users <span class="text-green-success text-sm">(+20% MoM)</span></li>
+                        <li><span class="text-blue-accent font-semibold">Churn Rate:</span> 3% <span class="text-green-success text-sm">(Stable)</span></li>
+                        <li><span class="text-blue-accent font-semibold">Funding Sought:</span> $2M Seed Round</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-light-content">
+                    <h3 class="text-xl font-poppins font-semibold text-gray-dark-text mb-4">Overall Risk Score</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-5xl font-poppins font-bold text-gold-warm">7.8</span>
+                        <span class="text-sm font-medium text-gray-medium">/ 10 (Low-Moderate)</span>
+                    </div>
+                    <p class="text-gray-dark-text-alt text-sm leading-relaxed">
+                        Minor legal liabilities related to past patent filings identified. Market competition is moderate.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-light-content mb-8">
+                <h3 class="text-xl font-poppins font-semibold text-gray-dark-text mb-4">Financial Projections (Placeholder Chart)</h3>
+                <div class="h-64 flex items-center justify-center bg-gray-light-bg rounded-lg border border-gray-light-content text-gray-medium">
+                    <p>Graphical representation of financial data will go here.</p>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 mb-8">
+                <button class="bg-blue-accent text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-accent/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-accent focus:ring-offset-2">
+                    Analyze New Company
+                </button>
+                <button class="border border-blue-accent text-blue-accent font-semibold py-3 px-6 rounded-lg hover:bg-blue-accent hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-accent focus:ring-offset-2">
+                    View Full Report
+                </button>
+            </div>
+
+            <div class="bg-red-alert text-white p-4 rounded-lg flex items-center shadow-md">
+                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <p class="font-semibold">Critical Red Flag Alert: Significant legal dispute detected for 'Global Innovations Inc.'. Immediate review recommended.</p>
+            </div>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

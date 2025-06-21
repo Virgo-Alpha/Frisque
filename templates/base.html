@@ -1,0 +1,161 @@
+{% load static %}
+{% load account %}
+{% load socialaccount %} {# Required for provider_login_url tag #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Frisque{% endblock %}</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    // Tailwind CSS configuration for custom colors and fonts
+    // This script MUST be placed after the Tailwind CDN script.
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'brand-blue-dark': '#2B3C52', /* Muted deep blue for primary actions */
+                    'brand-blue-light': '#4A698F', /* Lighter shade for accents */
+                    'brand-gradient-from': '#0B2027', /* Custom start for sidebar gradient */
+                    'brand-gradient-to': '#2C5282', /* Custom end for sidebar gradient */
+                    'gray-custom-100': '#F9FAFB', /* Very light gray for main content background */
+                    'gray-custom-800': '#2D3748', /* Darker gray for main text */
+                    'red-alert': '#D32F2F', /* Standard alert red */
+                    'gold-score': '#FFB300', /* For risk score highlights */
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    poppins: ['Poppins', 'sans-serif'],
+                },
+            },
+        },
+    }
+  </script>
+
+  <style>
+    /* Custom styles to apply fonts */
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+    }
+  </style>
+  <!-- Google Fonts: Poppins for headings, Inter for body text -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-custom-100 text-gray-custom-800 h-screen w-screen overflow-hidden">
+  <div class="flex h-full">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gradient-to-b from-brand-gradient-from to-brand-gradient-to text-white p-5 space-y-6 flex flex-col">
+      <div class="flex items-center space-x-3 mb-8">
+        <!-- New Muted Onion Logo SVG -->
+        <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer layer -->
+            <path d="M50 10 C 25 10, 10 40, 10 50 C 10 60, 25 90, 50 90 C 75 90, 90 60, 90 50 C 90 40, 75 10, 50 10 Z" fill="#4A698F" stroke="#F0F8FF" stroke-width="2"/>
+            <!-- Middle layer -->
+            <path d="M50 25 C 32 25, 20 45, 20 50 C 20 55, 32 75, 50 75 C 68 75, 80 55, 80 50 C 80 45, 68 25, 50 25 Z" fill="#6A8CBF" stroke="#F0F8FF" stroke-width="1.5"/>
+            <!-- Inner core (accent for insight) -->
+            <path d="M50 40 C 40 40, 35 48, 35 50 C 35 52, 40 60, 50 60 C 60 60, 65 52, 65 50 C 65 48, 60 40, 50 40 Z" fill="#9FB8D9" stroke="#F0F8FF" stroke-width="1"/>
+        </svg>
+        <span class="text-2xl font-bold font-poppins">Frisque</span>
+      </div>
+
+      <!-- Sidebar Navigation Links - Visible if authenticated -->
+      <nav class="flex-grow">
+        {% if user.is_authenticated %}
+        <ul>
+            <li class="mb-4">
+                <a href="{% url 'home' %}" class="flex items-center p-3 rounded-lg text-white hover:bg-brand-blue-light transition-colors duration-200">
+                    <!-- Dashboard Icon -->
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1h2a1 1 0 001-1m-6 0v-4a1 1 0 011-1h2a1 1 0 011 1v4m-6 0h6"></path></svg>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+            </li>
+            <li class="mb-4">
+                <a href="#" class="flex items-center p-3 rounded-lg text-white hover:bg-brand-blue-light transition-colors duration-200">
+                    <!-- Company Analysis Icon (still a placeholder for now, no specific URL) -->
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9.75 10M12.75 17L12.75 10M15.75 17L15.75 10M21 12C21 17.5228 16.5228 22 11 22C5.47715 22 1 17.5228 1 12C1 6.47715 5.47715 2 11 2C16.5228 2 21 6.47715 21 12Z"></path></svg>
+                    <span class="font-medium">Company Analysis</span>
+                </a>
+            </li>
+            <li class="mb-4">
+                <a href="{% url 'user' %}" class="flex items-center p-3 rounded-lg text-white hover:bg-brand-blue-light transition-colors duration-200">
+                    <!-- User Profile Icon -->
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="font-medium">My Profile</span>
+                </a>
+            </li>
+            <li class="mb-4">
+                <a href="#" class="flex items-center p-3 rounded-lg text-white hover:bg-brand-blue-light transition-colors duration-200">
+                    <!-- Settings Icon (still a placeholder for now, no specific URL) -->
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </li>
+        </ul>
+        {% endif %}
+      </nav>
+
+      <!-- User Profile/Placeholder in Sidebar (always visible, but content changes) -->
+      <div class="mt-auto pt-6 border-t border-brand-blue-light/50">
+          <div class="flex items-center space-x-3">
+              <img src="https://placehold.co/40x40/757575/FFFFFF?text=VC" alt="User Avatar" class="rounded-full">
+              <div>
+                  {% if user.is_authenticated %}
+                      <p class="font-medium text-white">
+                          {% comment %} Prioritize first_name, then email, then a generic label {% endcomment %}
+                          {% if user.first_name %}{{ user.first_name }}{% elif user.email %}{{ user.email }}{% else %}Authenticated User{% endif %}
+                      </p>
+                      <p class="text-sm text-gray-300">{{ user.email|default:"user@frisque.com" }}</p>
+                  {% else %}
+                      <p class="font-medium text-white">Guest User</p>
+                      <p class="text-sm text-gray-300">Please Log In</p>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <!-- Topbar -->
+      <header class="bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center shadow-sm">
+        <input
+          type="search"
+          placeholder="Search reports, teams, risks..."
+          class="border border-gray-300 rounded-lg px-4 py-2 w-1/3 focus:outline-none focus:ring-2 focus:ring-brand-blue-light"
+        />
+        <div class="flex items-center space-x-4">
+          {% if user.is_authenticated %}
+            <span class="text-sm font-medium text-gray-custom-800">Hi, {% if user.first_name %}{{ user.first_name }}{% elif user.email %}{{ user.email }}{% else %}User{% endif %}</span>
+            <a href="{% url 'account_logout' %}" class="bg-brand-blue-dark hover:bg-brand-blue-light text-white px-4 py-2 rounded text-sm transition-colors duration-200">Logout</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="text-brand-blue-dark hover:underline mr-4">Login</a>
+            <a href="{% url 'signup' %}" class="bg-brand-blue-dark hover:bg-brand-blue-light text-white px-4 py-2 rounded text-sm transition-colors duration-200">Sign Up</a>
+            
+          {% endif %}
+        </div>
+      </header>
+
+      <!-- Dynamic page content -->
+      <section class="overflow-y-auto p-6 bg-gray-custom-100 flex-1">
+        {% block content %}{% endblock %}
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // JavaScript for sidebar navigation link demonstration
+    function handleNavLinkClick(event, pageName) {
+        event.preventDefault(); // Prevent default link behavior
+        console.log(`Navigating to: ${pageName}`);
+        // For actual Django navigation, you would usually redirect or fetch new content here.
+    }
+  </script>
+</body>
+</html>

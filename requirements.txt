@@ -11,3 +11,9 @@ pytest-django
 pytest-cov
 requests
 google-generativeai
+django-allauth
+requests
+PyJWT==2.8.0 
+cryptography
+django-widget-tweaks
+
