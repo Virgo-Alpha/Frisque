@@ -1,5 +1,3 @@
--include .env
-
 install:
 	@command -v uv >/dev/null 2>&1 || { echo "uv is not installed. Installing uv..."; curl -LsSf https://astral.sh/uv/0.6.12/install.sh | sh; source ~/.bashrc; }
 	uv sync --dev --extra jupyter --frozen
@@ -15,11 +13,11 @@ playground:
 	@echo "|                                                                             |"
 	@echo "| 🔍 IMPORTANT: Select the 'app' folder to interact with your agent.          |"
 	@echo "==============================================================================="
-	uv run adk web --host 0.0.0.0 --port 8501
+	uv run adk web --host 0.0.0.0 --port 8503
 
 backend:
 	PROJECT_ID=$$(gcloud config get-value project) && \
-	gcloud run deploy websearchagent \
+	gcloud run deploy jsonformattingagent \
 		--source . \
 		--memory "4Gi" \
 		--project $$PROJECT_ID \
@@ -27,7 +25,7 @@ backend:
 		--no-allow-unauthenticated \
 		--labels "created-by=adk" \
 		--set-env-vars \
-		"COMMIT_SHA=$(shell git rev-parse HEAD),TAVILY_API_KEY=$(TAVILY_API_KEY)"
+		"COMMIT_SHA=$(shell git rev-parse HEAD)"
 
 local-backend:
 	uv run uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload

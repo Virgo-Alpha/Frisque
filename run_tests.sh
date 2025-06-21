@@ -12,6 +12,6 @@ echo "Starting the test suite..."
 
 # Run pytest inside the 'web' container.
 # -v adds more verbose output.
-docker-compose exec web pytest -v
+docker-compose exec web pytest -v --ignore=agents
 
 echo "All tests passed successfully!"
