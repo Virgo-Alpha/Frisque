@@ -29,6 +29,7 @@ def perform_scan_task(scan_job_id: str):
 
     try:
         # 2. Call the Orchestrator Agent via the utility function
+        print(f"-> Calling utils on company: {job.company_name}")
         result_str = call_orchestrator_agent(job.company_name)
         result_json = json.loads(result_str)
 

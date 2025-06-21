@@ -15,7 +15,7 @@
 import os
 
 from fastapi import FastAPI
-from overrides.fast_api import get_fast_api_app
+from google.adk.cli.fast_api import get_fast_api_app
 from google.cloud import logging as google_cloud_logging
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider, export
