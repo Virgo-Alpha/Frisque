@@ -28,4 +28,5 @@ urlpatterns = [
     path('signup/', User_views.SignUpView.as_view(), name='signup'),
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
+    path('scans/', include('scans.urls')),
 ]

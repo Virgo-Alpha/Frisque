@@ -10,6 +10,8 @@ ARG GID=1000
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PIP_TIMEOUT=300
+ENV PIP_RETRIES=5
 
 # Create a non-root user
 # This creates a group and user named 'devuser' with the provided IDs
