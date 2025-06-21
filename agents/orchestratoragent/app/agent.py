@@ -26,33 +26,58 @@ def company_researcher(query: str) -> str:
     Use this tool FIRST to get a general overview and raw text about a company.
     This should be your first step.
     """
-    # ... (The code for this function remains exactly the same as the last version)
     print(f"-> Delegating general research for '{query}' to the WebSearchAgent...")
-    user_id = "orchestrator-user"
-    session_id = str(uuid.uuid4())
-    base_url = os.environ.get("WEB_SEARCH_AGENT_URL", "http://host.docker.internal:8501")
-    session_url = f"{base_url}/apps/app/users/{user_id}/sessions/{session_id}"
+
+    user_id = "user"
+    app_name = "app"
+    session_id = str(uuid.uuid4())  # Or pass a fixed UUID if reusing sessions
+    base_url = os.environ.get("WEB_SEARCH_AGENT_URL", "http://localhost:8501")
+
+    # Step 1: Create session
+    session_url = f"{base_url}/apps/{app_name}/users/{user_id}/sessions/{session_id}"
     run_url = f"{base_url}/run_sse"
+
     try:
+        # Create session (POST empty body)
         requests.post(session_url, json={}).raise_for_status()
+
+        # Step 2: Send message to agent
         payload = {
-            "app_name": "app", "user_id": user_id, "session_id": session_id,
-            "new_message": {"parts": [{"text": query}]}
+            "appName": app_name,
+            "userId": user_id,
+            "sessionId": session_id,
+            "newMessage": {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": query
+                    }
+                ]
+            },
+            "streaming": False
         }
+
         run_response = requests.post(run_url, json=payload, stream=True)
         run_response.raise_for_status()
+
         final_text_response = "No valid response found."
         for line in run_response.iter_lines():
-            if line and line.decode('utf-8').startswith("data: "):
-                # ... (parsing logic remains the same)
-                data = json.loads(line.decode('utf-8')[6:])
-                if "content" in data and "parts" in data["content"] and data["content"]["parts"]:
-                    final_text_response = data["content"]["parts"][0].get("text", final_text_response)
+            if line and line.decode("utf-8").startswith("data: "):
+                try:
+                    data = json.loads(line.decode("utf-8")[6:])
+                    if "content" in data and "parts" in data["content"]:
+                        for part in data["content"]["parts"]:
+                            if "text" in part:
+                                final_text_response = part["text"]
+                except json.JSONDecodeError:
+                    continue
+
         return final_text_response
+
     except requests.exceptions.RequestException as e:
         return f"An error occurred while calling the WebSearchAgent: {e}"
 
-# This is a NEW, local web_search tool for the Orchestrator
+# local web_search tool for the Orchestrator
 tavily_client = TavilyClient(api_key=os.environ.get("TAVILY_API_KEY"))
 def web_search(query: str) -> str:
     """
@@ -64,11 +89,63 @@ def web_search(query: str) -> str:
         return "\n".join([res["content"] for res in response["results"]])
     except Exception as e:
         return f"An error occurred during the web search: {e}"
+    
+def call_json_formatter(text_to_format: str) -> str:
+    """Use this tool to convert the raw text into a structured JSON object."""
+    print("-> [Orchestrator] Calling JsonFormattingAgent...")
+
+    user_id = "user"
+    app_name = "app"
+    session_id = str(uuid.uuid4())
+    base_url = os.environ.get("JSON_FORMATTING_AGENT_URL", "http://localhost:8503")
+
+    session_url = f"{base_url}/apps/{app_name}/users/{user_id}/sessions/{session_id}"
+    run_url = f"{base_url}/run_sse"
+
+    try:
+        # Step 1: Create a session
+        requests.post(session_url, json={}).raise_for_status()
+
+        # Step 2: Send message to agent
+        payload = {
+            "appName": app_name,
+            "userId": user_id,
+            "sessionId": session_id,
+            "newMessage": {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": text_to_format
+                    }
+                ]
+            },
+            "streaming": False
+        }
+
+        response = requests.post(run_url, json=payload, stream=True, timeout=300)
+        response.raise_for_status()
+
+        final_json_response = "No valid response received."
+        for line in response.iter_lines():
+            if line and line.decode("utf-8").startswith("data: "):
+                try:
+                    data = json.loads(line.decode("utf-8")[6:])
+                    if "content" in data and "parts" in data["content"]:
+                        for part in data["content"]["parts"]:
+                            if "text" in part:
+                                final_json_response = part["text"]
+                except json.JSONDecodeError:
+                    continue
+
+        return final_json_response
+
+    except requests.exceptions.RequestException as e:
+        return f"Error calling JsonFormattingAgent: {e}"
 
 # ? The master orchestrator agent is now small thus it makes iterative calls.
 # TODO: We need to limit by time / results to avoid infinite loops or excessive API calls.
-# TODO: Specify the fields, maybe
-# TODO: Add another agent to test for this.
+# // TODO: Specify the fields, maybe
+# // TODO: Add another agent to test for this.
 
 # --- Orchestrator Agent Definition ---
 OrchestratorAgent = Agent(
@@ -76,22 +153,34 @@ OrchestratorAgent = Agent(
     model="gemini-2.0-flash-001",
     # The instruction is updated to explain the two-tool workflow.
     instruction="""
-    You are a master data analyst. Your goal is to create a detailed JSON object about a company based on the user's prompt.
-    The user's prompt is the company's name.
-    Immediately use your tools with the user's prompt as the `query`.
-    Return the raw output from the tools directly. Do not add any extra text.
-    
-    You have a two-step process and two tools available:
+You are a master data analyst. Your goal is to create a detailed JSON object about a company based on the user's prompt.
 
-    1.  **Initial Research:** First, you MUST call the `company_researcher` tool with the company's name. This will give you a general block of text.
-    2.  **Analysis and Follow-up:** Analyze the text from the first step. Then, create the final JSON object. If any information (like 'employee_size' or 'founders') is missing from the text, you MUST use the `web_search` tool to perform targeted follow-up searches to find it.
+Your workflow:
 
-    Your final answer must be a single JSON object with all fields correctly filled.
-    The required keys are: input_name, official_name, description, industry, founders, ceo, products, geographical_location, employee_size.
-    For any field you cannot find, use the string 'Not Found'.
-    """,
+1. **Initial Research**: Call `company_researcher` with the company name. This gives you general background.
+2. **Targeted Follow-ups**: If any fields are missing (see list below), use `web_search` to query for them. Do this even if some values seem partially available.
+3. **Formatting**: Combine all raw text and pass it to `call_json_formatter`, which will return a JSON object with the following fields:
+
+- official_name
+- description
+- industry
+- founders
+- ceo
+- products
+- geographical_location
+- employee_size
+- pricing_plans
+- funding
+- valuation
+- release_date
+- alternatives
+
+If you cannot find a field, do not guess—just ensure the formatter receives 'Not Found' where appropriate.
+
+Your final answer MUST be the direct, unmodified output from `call_json_formatter`.
+""",
     # The Orchestrator now has two tools at its disposal.
-    tools=[company_researcher, web_search],
+    tools=[company_researcher, web_search, call_json_formatter],
 )
 
 root_agent = OrchestratorAgent
