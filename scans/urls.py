@@ -9,5 +9,6 @@ app_name = 'scans'
 urlpatterns = [
     # URL for initiating a new scan (maps to RunScanView)
     path('run/', views.RunScanView.as_view(), name='run_scan'),
+    path('results/<uuid:pk>/', views.ScanResultView.as_view(), name='scan_result'),
     # Future: path('status/<uuid:scan_id>/', views.ScanStatusView.as_view(), name='scan_status'),
 ]

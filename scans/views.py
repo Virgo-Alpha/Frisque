@@ -1,10 +1,13 @@
-# frisque/scans/views.py
-
 from django.shortcuts import render, redirect
 from django.views import View
+from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin # Ensure user is logged in
 from django.urls import reverse_lazy # For redirection after success
-from django.contrib import messages # For displaying messages to the user
+from django.http import JsonResponse
+from django.contrib import messages
+
+from scans.models import ScanJob
+from scans.tasks import perform_scan_task # For displaying messages to the user
 
 from .forms import RunScanForm # Import the form you just created
 
@@ -18,8 +21,8 @@ class RunScanView(LoginRequiredMixin, View):
 
     Handles both GET (display form) and POST (process form submission) requests.
     """
-    template_name = 'scans/run_scan.html' # We will create this template next
-    login_url = reverse_lazy('login') # Redirect unauthenticated users to the custom login page
+    template_name = 'scans/run_scan.html'
+    login_url = reverse_lazy('login')
     # success_url = reverse_lazy('scans:scan_initiated_success') # Future: URL to redirect after successful scan initiation
 
     def get(self, request, *args, **kwargs):
@@ -31,27 +34,37 @@ class RunScanView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handles POST requests: Processes submitted RunScanForm data.
+        Handles POST requests: Creates a ScanJob and dispatches a Celery task.
         """
-        form = RunScanForm(request.POST)
-        if form.is_valid():
-            company_name = form.cleaned_data['company_name']
-            company_website = form.cleaned_data['company_website']
+        # Assuming form validation is handled or you get data directly
+        company_name = request.POST.get('company_name', '')
+        company_url = request.POST.get('company_website', '')
 
-            # --- Placeholder for actual scan initiation logic ---
-            # In a real application, you would:
-            # 1. Save the scan request to the database (e.g., a Scan model).
-            # 2. Trigger a Celery task to perform the AI due diligence in the background.
-            # 3. Store results or a scan ID to be displayed on a dashboard later.
-            logger.info(f"Scan initiated: Company Name='{company_name}', Website='{company_website}' by user '{request.user.email}'")
-            messages.success(request, f"Scan for '{company_name}' initiated successfully! We will begin peeling the layers.")
+        if not company_name:
+            messages.error(request, "Company name is a required field.")
+            return render(request, self.template_name, {})
 
-            # --- Future: Redirect to a scan status page or dashboard ---
-            # For now, let's redirect to the home page or a simple success message
-            return redirect(reverse_lazy('home')) # Redirect to home after successful submission
-            # return redirect(self.success_url) # If a dedicated success URL is defined
+        # 1. Create a new ScanJob record in the database.
+        new_job = ScanJob.objects.create(
+            user=request.user,
+            company_name=company_name,
+            company_url=company_url
+        )
 
-        else:
-            # If form is not valid, re-render the form with validation errors
-            messages.error(request, "Please correct the errors below.")
-            return render(request, self.template_name, {'form': form})
+        # 2. Dispatch the Celery task with the ID of the new job.
+        perform_scan_task.delay(new_job.id)
+
+        # 3. Add a success message for the user.
+        messages.success(request, f"Scan for '{company_name}' initiated successfully! You will be notified upon completion.")
+        
+        # 4. Redirect the user to the results page for the new job.
+        return redirect('scans:scan_result', pk=new_job.id)
+
+
+class ScanResultView(LoginRequiredMixin, DetailView):
+    """
+    Displays the final report for a specific ScanJob using Django's generic DetailView.
+    """
+    model = ScanJob
+    template_name = 'scans/scan_result.html'
+    context_object_name = 'job'

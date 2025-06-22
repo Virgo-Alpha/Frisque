@@ -7,9 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# TODO: Debug the celery import
-# TODO: Run the test in web shell and check the logs
-
 @shared_task
 def perform_scan_task(scan_job_id: str):
     """
