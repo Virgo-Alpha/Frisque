@@ -12,6 +12,9 @@ Venture Capital (VC) firms dedicate a significant amount of time and resources t
 
 ## Our Solution
 
+
+https://github.com/user-attachments/assets/e8c64a8c-8d7a-4463-a1e0-49c89cc73040
+
 Frisque is an AI-powered platform that significantly reduces the time and effort VCs spend on initial due diligence while improving the depth and breadth of insights. The platform uses a system of specialized AI agents that can:
 
   * Perform targeted research on a company based on inputs like pitch decks, financial documents, and founder profiles.
@@ -22,6 +25,9 @@ Frisque is an AI-powered platform that significantly reduces the time and effort
 ## Tech Stack
 
 Frisque is built with a modern, scalable technology stack designed for asynchronous workloads and intelligent processing.
+
+![gallery (1)](https://github.com/user-attachments/assets/db1fa1fb-0a9d-4b23-84aa-4c5362023028)
+
 
 | Category             | Technology                                                                          |
 | -------------------- | ----------------------------------------------------------------------------------- |
