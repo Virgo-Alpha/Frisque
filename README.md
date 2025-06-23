@@ -126,9 +126,9 @@ Here are some examples of common `manage.py` commands.
 
   You can also run the full command below:
   
-    ```bash
-    docker-compose exec web pytest
-    ```
+```bash
+docker-compose exec web pytest
+```
 
 
 ### Stopping the Environment
