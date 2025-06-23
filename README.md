@@ -26,7 +26,8 @@ Frisque is an AI-powered platform that significantly reduces the time and effort
 
 Frisque is built with a modern, scalable technology stack designed for asynchronous workloads and intelligent processing.
 
-![gallery (1)](https://github.com/user-attachments/assets/db1fa1fb-0a9d-4b23-84aa-4c5362023028)
+
+![gallery (3)](https://github.com/user-attachments/assets/57cb32b8-a0cc-437a-bc89-73e3fec417f1)
 
 
 | Category             | Technology                                                                          |
