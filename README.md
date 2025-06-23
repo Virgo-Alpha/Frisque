@@ -4,6 +4,8 @@
 
 Frisque is an agentic AI system designed to revolutionize the venture capital due diligence process. It automates and augments critical research, culminating in comprehensive investment memos and actionable insights. Frisque comes from the French words _Faux Risque_ meaning `false risk`, which is what we aim to eliminate in the due diligence process.
 
+Read more about Frisque in our [blog post](https://dev.to/virgoalpha/frisque-using-ai-agents-for-due-diligence-4old).
+
 ## The Problem
 
 Venture Capital (VC) firms dedicate a significant amount of time and resources to conducting due diligence on potential startup investments. This process is critical for assessing a startup's viability and growth potential, but it is incredibly time-intensive. Given that a fund's returns often come from a small percentage of its investments, streamlining this process is crucial for success.
