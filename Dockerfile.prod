@@ -1,0 +1,31 @@
+# Dockerfile.prod
+
+# --- Stage 1: Build Stage ---
+# Use a full Python image to install dependencies
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+
+# Install system dependencies that might be needed
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev
+
+# Copy dependency files and install them
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# --- Stage 2: Final Production Stage ---
+# Use a minimal base image for the final container to reduce size
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy the installed packages from the builder stage
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Copy your application code into the final container
+COPY . .
+
+# Set the entrypoint to Gunicorn. Cloud Run will provide the $PORT.
+# This tells Gunicorn to run our Django app and listen on all interfaces.
+CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 frisque_core.wsgi:application

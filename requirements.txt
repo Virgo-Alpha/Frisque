@@ -16,4 +16,5 @@ requests
 PyJWT==2.8.0 
 cryptography
 django-widget-tweaks
-
+gunicorn
+django-extensions

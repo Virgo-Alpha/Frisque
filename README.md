@@ -22,6 +22,8 @@ Frisque is an AI-powered platform that significantly reduces the time and effort
   * Synthesize all findings into a structured investment memo and a summary dashboard.
   * Provide real-time updates and notifications on scan progress and completion.
 
+Find an example of a completed report [here](https://frisque-web-app-46904927368.africa-south1.run.app/scans/results/1c350c71-d9c9-43ad-a52c-976d84c8b94f/). Ideally, the project's gaol is to generate investment memos such as [this one](https://drive.google.com/file/d/1jO7UjrZn8zDurIlp8sPRDpUQgXQkG3mu/view?usp=sharing) about Paystack from Dream VC.
+
 ## Tech Stack
 
 Frisque is built with a modern, scalable technology stack designed for asynchronous workloads and intelligent processing.

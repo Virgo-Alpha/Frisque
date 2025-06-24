@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-$qwd002fq&p&4nmdds8hi(e(z0lbkw*=a65r#)8!^%$4*vv!wk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'frisque-web-app-46904927368.africa-south1.run.app']
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'widget_tweaks', 
+    'widget_tweaks',
+    'django_extensions',
 
     # Required by allauth
     'django.contrib.sites',
@@ -97,16 +98,39 @@ WSGI_APPLICATION = 'frisque_core.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+CLOUD_SQL_CONNECTION_NAME = os.environ.get('CLOUD_SQL_INSTANCE_CONNECTION_NAME')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('POSTGRES_NAME'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': '5432',
     }
 }
+
+if CLOUD_SQL_CONNECTION_NAME:
+    # We are in a GCP environment with a Cloud SQL connection.
+    # Use the secure Unix socket.
+    DATABASES['default']['HOST'] = f"/cloudsql/{CLOUD_SQL_CONNECTION_NAME}"
+
+    APP_URL = os.environ.get("APP_URL")
+    if APP_URL:
+        # ALLOWED_HOSTS tells Django what domains it can serve
+        ALLOWED_HOSTS = [APP_URL]
+        # CSRF_TRUSTED_ORIGINS tells Django to accept POST requests from this domain
+        CSRF_TRUSTED_ORIGINS = [f"https://{APP_URL}", "https://frisque-web-app-46904927368.africa-south1.run.app"]
+        SECURE_SSL_REDIRECT = True
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+else:
+    # We are in a local environment (e.g., Docker Compose).
+    # Use standard TCP connection.
+    DATABASES['default']['HOST'] = os.environ.get('POSTGRES_HOST')
+    DATABASES['default']['PORT'] = '5432'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://frisque-web-app-46904927368.africa-south1.run.app"
+]
 
 
 # Password validation
